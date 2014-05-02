@@ -17,7 +17,7 @@ module.exports = (robot) ->
     robot.logger.warning 'The HUBOT_WHOIS_SP environment variable not set'
 
   robot.catchAll (msg) ->
-    #return unless process.env.HUBOT_WHOIS_SP?
+    return unless process.env.HUBOT_WHOIS_SP?
 
     nick = msg.message.user.name
     exists = robot.brain.get(nick + ":exists")
