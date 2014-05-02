@@ -72,4 +72,5 @@ module.exports = (robot) ->
           robot.brain.set(nick + ":exists", true)
         else
           robot.brain.remove(nick + ":exists")
+          robot.brain.remove(nick + ":nagged")
           msg.reply "There is no information in our database or the NSA one about #{nick}, please add it to " + url
