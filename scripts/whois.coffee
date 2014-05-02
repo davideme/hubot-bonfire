@@ -39,27 +39,37 @@ module.exports = (robot) ->
       if today < nag_on
         return
 
-    robot.brain.set(nick + ":nagged", today.toString())
-    msg.reply("Hey! you should update your details in " + url)
+    sp_url = process.env.HUBOT_WHOIS_SP
+    robot.http(sp_url + nick).get() (err, res, body) ->
+      if err || res.statusCode isnt 200
+        return
+
+      parseString body, (err, result) ->
+        if result.feed.entry?
+          robot.brain.set(nick + ":exists", true)
+        else
+          robot.brain.set(nick + ":nagged", today.toString())
+          msg.reply("Hey! you should update your details in " + url)
 
   robot.respond /(?:quien es|who is) @?([\w .\-]+)\?*/i, (msg) ->
     nick = msg.match[1].trim()
-    msg.send "Espere un momento, por favor ...♬♪"
+    msg.reply "Espere un momento, por favor ...♬♪"
 
     sp_url = process.env.HUBOT_WHOIS_SP
     robot.http(sp_url + nick).get() (err, res, body) ->
 
       if err
-        msg.send "Encountered an error :( #{err}"
+        msg.reply "Encountered an error :( #{err}"
         return
 
       if res.statusCode isnt 200
-        msg.send "Request didn't come back HTTP 200 :("
+        msg.reply "Request didn't come back HTTP 200 :("
         return
       # error checking code here
       parseString body, (err, result) ->
         if result.feed.entry?
-          msg.send result.feed.entry[0].content[0]._
+          msg.reply "Information about "+nick+": "+result.feed.entry[0].content[0]._
           robot.brain.set(nick + ":exists", true)
         else
-          msg.send "There is no information in our database or the NSA one about #{nick}, please add it to " + url
+          robot.brain.remove(nick + ":exists")
+          msg.reply "There is no information in our database or the NSA one about #{nick}, please add it to " + url
