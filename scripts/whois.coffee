@@ -19,7 +19,7 @@ module.exports = (robot) ->
   robot.catchAll (msg) ->
     #return unless process.env.HUBOT_WHOIS_SP?
 
-    nick = msg.user
+    nick = msg.message.user.name
     exists = robot.brain.get(nick + ":exists")
 
     if exists
